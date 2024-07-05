@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New Project</title>
+</head>
+<body>
+    <h2>{{ form.title.label }}</h2>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div>{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <label for="title">{{ form.title.label }}</label>
+        {{ form.title(id='title') }}<br>
+        <label for="description">{{ form.description.label }}</label>
+        {{ form.description(id='description') }}<br>
+        {{ form.submit() }}
+    </form>
+</body>
+</html>

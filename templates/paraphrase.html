@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Writing Assistant Tool</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/paraphrasing.css') }}">
+    <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar_btn_group">
+                <button class="sidebar_btn" id="seo-btn">SEO</button>
+                <button class="sidebar_btn" id="readability-btn">Readability</button>
+            </div>
+            <div class="sidebar_content">
+                <div id="seo-section">
+                    <h3 style="margin-bottom: 10px;">Long Tail Keywords</h3>
+                    <div id="long-tail-keywords"></div>
+                    <h3 style="margin: 10px 0;">LSI Keywords</h3>
+                    <div id="lsi-keywords"></div>
+                </div>
+
+                <div id="readability-section" style="display:none;">
+                    <h3 style="margin: 10px 0;">Long Sentences</h3>
+                    <div id="long-sentences"></div>
+                    <h3 style="margin: 10px 0;">Hard Vocabulary</h3>
+                    <div id="hard-vocabulary"></div>
+                    <h3 style="margin: 10px 0;">Passive Voice Sentences</h3>
+                    <div id="passive-voice"></div>
+                    <h3 style="margin: 10px 0;">Active Voice Suggestions</h3>
+                    <div id="active-voice"></div>
+                </div>
+            </div>
+        </div>
+        <div class="main">
+            <div class="content">
+                <h1 style="margin-bottom: 10px;">Writing Assistant Tool</h1>
+                <div class="form-group">
+                    <textarea class="form-control" id="editor"></textarea>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" id="suggestion-btn">Get Suggestions</button>
+                </div>
+            </div>
+
+            <div class="rightbar" id="suggestions">
+                <h3 style="margin: 10px 0;">Suggestions</h3>
+                <div id="suggestion-content"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        CKEDITOR.replace('editor');
+        let editor = CKEDITOR.instances.editor;
+
+        const longTailKeywords = {{ long_tail_keywords| tojson }};
+        const lsiKeywords = {{ lsi_keywords| tojson }};
+
+        function updateKeywords() {
+            const content = editor.getData();
+            const headings = content.match(/<h[1-4][^>]*>(.*?)<\/h[1-4]>/g) || [];
+            const paragraphs = content.match(/<p[^>]*>(.*?)<\/p>/g) || [];
+            const totalWords = content.split(/\s+/).length;
+
+            // Update Long Tail Keywords
+            let longTailContainer = document.getElementById('long-tail-keywords');
+            longTailContainer.innerHTML = '';
+            longTailKeywords.forEach(keyword => {
+                let occurrences = 0;
+                headings.forEach(heading => {
+                    occurrences += (heading.match(new RegExp(keyword, 'gi')) || []).length;
+                });
+                paragraphs.forEach(paragraph => {
+                    occurrences += (paragraph.match(new RegExp(keyword, 'gi')) || []).length;
+                });
+                let density = occurrences / totalWords * 100;
+                let keywordClass = density > 1.5 ? 'keyword-red' : (occurrences > 0 ? 'keyword-green' : 'keyword-grey');
+                longTailContainer.innerHTML += `<span class="keyword-ribbon ${keywordClass}">${keyword}</span>`;
+            });
+
+            // Update LSI Keywords
+            let lsiContainer = document.getElementById('lsi-keywords');
+            lsiContainer.innerHTML = '';
+            lsiKeywords.forEach(keyword => {
+                let occurrences = 0;
+                headings.forEach(heading => {
+                    occurrences += (heading.match(new RegExp(keyword, 'gi')) || []).length;
+                });
+                paragraphs.forEach(paragraph => {
+                    occurrences += (paragraph.match(new RegExp(keyword, 'gi')) || []).length;
+                });
+                let density = occurrences / totalWords * 100;
+                let keywordClass = density > 1.5 ? 'keyword-red' : (occurrences > 0 ? 'keyword-green' : 'keyword-grey');
+                lsiContainer.innerHTML += `<span class="keyword-ribbon ${keywordClass}">${keyword}</span>`;
+            });
+
+            // Update Readability
+            let longSentencesContainer = document.getElementById('long-sentences');
+            let hardVocabularyContainer = document.getElementById('hard-vocabulary');
+            let passiveVoiceContainer = document.getElementById('passive-voice');
+            let activeVoiceContainer = document.getElementById('active-voice');
+            longSentencesContainer.innerHTML = '';
+            hardVocabularyContainer.innerHTML = '';
+            passiveVoiceContainer.innerHTML = '';
+            activeVoiceContainer.innerHTML = '';
+            let sentences = content.split(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s/g);
+            sentences.forEach(sentence => {
+                if (sentence.split(' ').length > 20) {
+                    longSentencesContainer.innerHTML += `<p class="issue">${sentence}</p>`;
+                }
+                let words = sentence.split(' ');
+                words.forEach(word => {
+                    if (word.length > 10) {
+                        hardVocabularyContainer.innerHTML += `<p class="issue">${word}</p>`;
+                    }
+                });
+                if (/(\bwas\b|\bwere\b|\bam\b|\bbeen\b|\bbeing\b)/.test(sentence)) {
+                    passiveVoiceContainer.innerHTML += `<p class="issue">${sentence}</p>`;
+                }
+                if (/(.+ing\s+)/.test(sentence)) {
+                    activeVoiceContainer.innerHTML += `<p class="issue">${sentence}</p>`;
+                }
+            });
+        }
+
+        editor.on('change', function () {
+            updateKeywords();
+        });
+
+        document.getElementById('seo-btn').addEventListener('click', function () {
+            document.getElementById('seo-section').style.display = 'block';
+            document.getElementById('readability-section').style.display = 'none';
+        });
+
+        document.getElementById('readability-btn').addEventListener('click', function () {
+            document.getElementById('seo-section').style.display = 'none';
+            document.getElementById('readability-section').style.display = 'block';
+        });
+
+        document.getElementById('suggestion-btn').addEventListener('click', function () {
+            const editorContent = editor.getData();
+            fetch('{{ url_for("paraphrase") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ editor_content: editorContent })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('suggestions').style.display = 'block';
+                    let suggestionContent = document.getElementById('suggestion-content');
+                    suggestionContent.innerHTML = '';
+                    data.suggestions.split('\n').forEach(suggestion => {
+                        suggestionContent.innerHTML += `<div class="suggestion">${suggestion}</div>`;
+                    });
+
+                    // Show readability suggestions
+                    if (data.readability) {
+                        document.getElementById('long-sentences').innerHTML = '';
+                        document.getElementById('hard-vocabulary').innerHTML = '';
+                        document.getElementById('passive-voice').innerHTML = '';
+                        document.getElementById('active-voice').innerHTML = '';
+
+                        data.readability.long_sentences.forEach(sentence => {
+                            document.getElementById('long-sentences').innerHTML += `<p class="issue">${sentence}</p>`;
+                        });
+                        data.readability.hard_vocabulary.forEach(word => {
+                            document.getElementById('hard-vocabulary').innerHTML += `<p class="issue">${word}</p>`;
+                        });
+                        data.readability.passive_voice.forEach(sentence => {
+                            document.getElementById('passive-voice').innerHTML += `<p class="issue">${sentence}</p>`;
+                        });
+                        data.readability.active_voice.forEach(sentence => {
+                            document.getElementById('active-voice').innerHTML += `<p class="issue">${sentence}</p>`;
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+
+        // Initial scan
+        updateKeywords();
+    </script>
+</body>
+
+</html>

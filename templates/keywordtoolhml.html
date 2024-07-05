@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Keyword Tool</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/keywordtool.css') }}">
+    <script>
+        function redirectToParaphrase() {
+            // Store keywords in session storage
+            sessionStorage.setItem('longTailKeywords', JSON.stringify({{ long_tail_keywords|tojson }}));
+            sessionStorage.setItem('lsiKeywords', JSON.stringify({{ lsi_keywords|tojson }}));
+
+            // Redirect to paraphrase page
+            window.location.href = "{{ url_for('paraphrase') }}";
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Keyword Tool</h1>
+        <form method="post" action="{{ url_for('keyword_generation') }}">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <input type="text" name="keyword" placeholder="Enter keyword (max 60 chars)" value="{{ keyword }}">
+            </div>
+            <button type="submit">Generate Keywords</button>
+        </form>
+
+        {% if long_tail_keywords or lsi_keywords %}
+        <h2>Keywords Generated!</h2>
+        <h3>Long Tail Keywords</h3>
+        <ul>
+            {% for kw in long_tail_keywords %}
+            <li>{{ kw }}</li>
+            {% endfor %}
+        </ul>
+        <h3>LSI Keywords</h3>
+        <ul>
+            {% for kw in lsi_keywords %}
+            <li>{{ kw }}</li>
+            {% endfor %}
+        </ul>
+        <button onclick="redirectToParaphrase()">Next</button>
+        {% endif %}
+    </div>
+</body>
+</html>

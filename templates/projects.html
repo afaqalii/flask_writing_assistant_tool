@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Projects</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/projects.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <div class="project_header">
+            <h1>Your Projects</h1>
+            <a href="{{ url_for('new_project') }}">
+                <button class="create_project_btn">Create New Project</button>
+            </a>
+        </div>
+        <ol class="project-list">
+            {% for project in projects %}
+            <li>
+                <div class="project-item">
+                    <strong>{{ project.title }}</strong> - {{ project.description }}
+                    <div class="button-group">
+                        <form method="POST" action="{{ url_for('delete_project', project_id=project.id) }}">
+                            {{ form.hidden_tag() }}
+                            <button class="delete-button" type="submit">Delete</button>
+                        </form>
+                        <a class="edit-link" href="{{ url_for('edit_project', project_id=project.id) }}">Edit</a>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ol>
+
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
+* {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.keyword-ribbon {
+    margin: 5px;
+    display: inline-block;
+    color: grey;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: #F8F8F8;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1)
+}
+
+.keyword-green {
+    background-color: green;
+}
+
+.keyword-grey {
+    background-color: white;
+}
+
+.keyword-red {
+    background-color: red;
+    color: white;
+}
+
+.issue {
+    color: lightcoral;
+}
+
+.suggestion {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+}
+#suggestion-btn {
+    padding: 10px 20px;
+    background-color: #484848;
+    color: white;
+    border: none;
+    font-weight: bold;
+    margin-top: 10px;
+}
+.container {
+    display: flex;
+}
+
+.sidebar {
+    max-width: 300px;
+    min-width: 300px;
+    color: #333;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar_btn_group {
+    display: flex;
+    gap: 20px;
+    background-color: #484848;
+    padding: 20px 10px;
+
+}
+.sidebar_btn {
+    padding: 10px 20px;
+    background-color: white;
+    color: black;
+    outline: none;
+    border-radius: 10px;
+    border: 1px solid black;
+    font-weight: bold;
+    min-width: 120px;
+}
+
+#seo-btn {}
+
+#readability-btn {
+    margin-left: 10px;
+}
+
+.sidebar_content {
+    padding: 20px;
+}
+.main {
+    width: 100%;
+    padding: 20px;
+}
+
+/* 
+h1, h2 {
+    margin: 20px 0;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+textarea {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+button.btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin: 10px;
+}
+
+button.btn:hover {
+    background-color: #0056b3;
+}
+
+#output-container {
+    margin-top: 20px;
+}
+
+#output-container h2 {
+    margin-bottom: 10px;
+}
+
+#paraphrased-text {
+    font-size: 16px;
+    white-space: pre-wrap; /* Ensure new lines and spaces are preserved 
+} */
